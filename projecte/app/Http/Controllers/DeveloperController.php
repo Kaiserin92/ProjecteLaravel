@@ -7,59 +7,57 @@ use Illuminate\Http\Request;
 
 class DeveloperController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Mostrar todos los desarrolladores
     public function index()
     {
-        //
+        $developers = Developer::all();
+        return view('developers.index', compact('developers'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // Mostrar el formulario para crear uno nuevo
     public function create()
     {
-        //
+        return view('developers.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Guardar el nuevo desarrollador en la base de datos
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'founded_year' => 'nullable|integer|min:1880|max:' . date('Y'),
+        ]);
+
+        Developer::create($request->all());
+
+        return redirect()->route('developers.index')->with('success', 'Estudio creado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Developer $developer)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
+    // Mostrar el formulario para editar
     public function edit(Developer $developer)
     {
-        //
+        return view('developers.edit', compact('developer'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    // Actualizar los datos en la base de datos
     public function update(Request $request, Developer $developer)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'founded_year' => 'nullable|integer|min:1880|max:' . date('Y'),
+        ]);
+
+        $developer->update($request->all());
+
+        return redirect()->route('developers.index')->with('success', 'Estudio actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    // Eliminar de la base de datos
     public function destroy(Developer $developer)
     {
-        //
+        $developer->delete();
+        return redirect()->route('developers.index')->with('success', 'Estudio eliminado correctamente.');
     }
 }

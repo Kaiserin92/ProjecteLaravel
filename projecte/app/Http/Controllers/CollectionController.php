@@ -2,63 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Game; // Importante
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CollectionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function store(Request $request, Game $game)
+    {
+        $user = $request->user();
+
+        // Ahora usamos $request->status para guardar lo que el usuario ha elegido
+        $user->games()->syncWithoutDetaching([
+            $game->id => ['status' => $request->status ?? 'pending']
+        ]);
+
+        return back()->with('success', '¡Juego añadido a tu colección!');
+    }
+
     public function index()
     {
-        return view('collection.index');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Obtenemos los juegos y los agrupamos por el campo 'status' de la tabla pivote
+        $collection = $user->games()->withPivot('status')->get()->groupBy('pivot.status');
+
+        return view('dashboard', compact('collection'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function update(Request $request, Game $game)
     {
-        //
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Actualizamos el estado en la tabla intermedia
+        $user->games()->updateExistingPivot($game->id, [
+            'status' => $request->status
+        ]);
+
+        return back()->with('success', 'Estado actualizado correctamente.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

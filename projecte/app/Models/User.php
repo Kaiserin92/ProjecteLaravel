@@ -29,4 +29,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function games()
+    {
+        return $this->belongsToMany(Game::class)
+                    ->withPivot('status') // Esto es para poder leer si está 'playing', 'completed', etc.
+                    ->withTimestamps();
+    }
 }
